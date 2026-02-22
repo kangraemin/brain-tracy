@@ -89,7 +89,18 @@ class _ActionPlanScreenState extends ConsumerState<ActionPlanScreen> {
               loading: () =>
                   const Center(child: CircularProgressIndicator()),
               error: (error, stack) => Center(
-                child: Text('오류가 발생했습니다: $error'),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('오류가 발생했습니다: $error'),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => ref.invalidate(
+                          actionPlanNotifierProvider(widget.goalId)),
+                      child: const Text('다시 시도'),
+                    ),
+                  ],
+                ),
               ),
               data: (steps) {
                 if (steps.isEmpty) {

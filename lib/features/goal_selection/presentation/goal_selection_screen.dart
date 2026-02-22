@@ -22,7 +22,18 @@ class GoalSelectionScreen extends ConsumerWidget {
       body: selectionAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(
-          child: Text('오류가 발생했습니다: $error'),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('오류가 발생했습니다: $error'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () =>
+                    ref.invalidate(goalSelectionNotifierProvider),
+                child: const Text('다시 시도'),
+              ),
+            ],
+          ),
         ),
         data: (selectionState) {
           final hasSelection = selectionState.selectedGoalId != null;
