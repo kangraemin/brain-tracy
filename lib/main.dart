@@ -2,28 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'package:brain_tracy/app.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
 
   runApp(
     const ProviderScope(
-      child: _TemporaryApp(),
+      child: BrainTracyApp(),
     ),
   );
-}
-
-class _TemporaryApp extends StatelessWidget {
-  const _TemporaryApp();
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Brain Tracy'),
-        ),
-      ),
-    );
-  }
 }
