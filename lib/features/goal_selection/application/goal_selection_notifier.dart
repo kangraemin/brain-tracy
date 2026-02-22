@@ -50,6 +50,24 @@ class GoalSelectionNotifier extends AsyncNotifier<GoalSelectionState> {
       currentState.copyWith(selectedGoalId: () => newSelectedId),
     );
   }
+
+  Future<void> confirmSelection() async {
+    final currentState = state.valueOrNull;
+    if (currentState == null || currentState.selectedGoalId == null) return;
+
+    // 기존 선택 해제
+    for (final goal in currentState.goals) {
+      if (goal.isSelected) {
+        await _repository.update(goal.copyWith(isSelected: false));
+      }
+    }
+
+    // 새 선택 저장
+    final selectedGoal = currentState.goals.firstWhere(
+      (g) => g.id == currentState.selectedGoalId,
+    );
+    await _repository.update(selectedGoal.copyWith(isSelected: true));
+  }
 }
 
 final goalSelectionNotifierProvider =

@@ -23,6 +23,8 @@ class GoalSelectionScreen extends ConsumerWidget {
           child: Text('오류가 발생했습니다: $error'),
         ),
         data: (selectionState) {
+          final hasSelection = selectionState.selectedGoalId != null;
+
           return Column(
             children: [
               Padding(
@@ -77,6 +79,22 @@ class GoalSelectionScreen extends ConsumerWidget {
                       ),
                     );
                   },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: hasSelection
+                        ? () async {
+                            await ref
+                                .read(goalSelectionNotifierProvider.notifier)
+                                .confirmSelection();
+                          }
+                        : null,
+                    child: const Text('선택 완료'),
+                  ),
                 ),
               ),
             ],
