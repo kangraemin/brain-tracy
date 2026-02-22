@@ -4,4 +4,5 @@ class HiveConstants {
   static const String goalBox = 'goals';
   static const String actionPlanBox = 'action_plans';
   static const String settingsBox = 'settings';
+  static const String userActivityBox = 'user_activities';
 }
