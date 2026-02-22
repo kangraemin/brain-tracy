@@ -39,4 +39,7 @@ class _FakeGoalListNotifier extends AsyncNotifier<List<GoalEntity>>
 
   @override
   Future<void> updateGoal(GoalEntity goal) async {}
+
+  @override
+  bool get canAddGoal => true;
 }

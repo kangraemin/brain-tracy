@@ -68,10 +68,12 @@ class _GoalInputScreenState extends ConsumerState<GoalInputScreen> {
   @override
   Widget build(BuildContext context) {
     final goalsAsync = ref.watch(goalListNotifierProvider);
+    final goalCount = goalsAsync.valueOrNull?.length ?? 0;
+    final canAdd = goalCount < maxGoalCount;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('목표 입력'),
+        title: Text('목표 입력 ($goalCount/$maxGoalCount)'),
       ),
       body: Column(
         children: [
@@ -91,7 +93,7 @@ class _GoalInputScreenState extends ConsumerState<GoalInputScreen> {
                 ),
                 const SizedBox(width: 8),
                 IconButton.filled(
-                  onPressed: _addGoal,
+                  onPressed: canAdd ? _addGoal : null,
                   icon: const Icon(Icons.add),
                 ),
               ],
