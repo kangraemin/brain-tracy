@@ -38,7 +38,7 @@ Brain Tracy MVP: 목표 입력 → 핵심 목표 선택 → 7단계 실행 체�
 ---
 
 ## Phase 1: 목표 데이터 모델
-상태: 🔄 진행중
+상태: 완료 ✅
 
 Goal Entity, Repository 인터페이스, Hive 저장소 구현. goal_input feature 데이터 레이어 완성.
 
@@ -69,14 +69,33 @@ Goal Entity, Repository 인터페이스, Hive 저장소 구현. goal_input featu
 ---
 
 ## Phase 2: 목표 입력 기능
-상태: ⏳ 대기
+상태: 🔄 진행중
 
 목표 10개를 입력하는 화면과 비즈니스 로직. goal_input feature 완성.
 
-예상 Step:
-- GoalListNotifier 구현 (Application 레이어)
-- GoalInputScreen UI 구현 (Presentation 레이어)
-- 목표 추가/삭제/수정 동작 연결
+### Step 2.1: GoalListNotifier 구현
+- 구현: lib/features/goal_input/application/goal_list_notifier.dart 생성. AsyncNotifier<List<GoalEntity>>로 목표 목록 상태 관리. loadGoals, addGoal, deleteGoal, updateGoal 메서드 정의. goalListNotifierProvider 정의.
+- 완료 기준: `flutter analyze` 성공
+
+### Step 2.2: GoalInputScreen 기본 화면
+- 구현: lib/features/goal_input/presentation/goal_input_screen.dart 생성. ConsumerWidget으로 goalListNotifierProvider를 watch하여 목표 리스트 표시. app_router.dart 라우트 업데이트.
+- 완료 기준: 앱 실행 시 목표 리스트 화면 표시, `flutter analyze` 성공
+
+### Step 2.3: 목표 추가 기능
+- 구현: GoalInputScreen에 텍스트 입력 필드와 추가 버튼 구현. GoalListNotifier.addGoal 연결.
+- 완료 기준: 목표 텍스트 입력 후 추가 동작 확인, `flutter analyze` 성공
+
+### Step 2.4: 목표 삭제 기능
+- 구현: GoalInputScreen 목표 항목에 삭제 동작 추가 (스와이프 또는 삭제 버튼). GoalListNotifier.deleteGoal 연결.
+- 완료 기준: 목표 삭제 동작 확인, `flutter analyze` 성공
+
+### Step 2.5: 목표 수정 기능
+- 구현: GoalInputScreen 목표 항목 탭 시 텍스트 편집 기능. GoalListNotifier.updateGoal 연결.
+- 완료 기준: 목표 수정 동작 확인, `flutter analyze` 성공
+
+### Step 2.6: 목표 개수 제한
+- 구현: GoalListNotifier에서 10개 최대 제한 로직 추가. UI에 현재 목표 개수 카운터 표시. 10개 도달 시 추가 버튼 비활성화.
+- 완료 기준: 11번째 목표 추가 차단 확인, `flutter analyze` 성공
 
 ---
 
