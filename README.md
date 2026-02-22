@@ -52,3 +52,39 @@ flutter test
 # 빌드
 flutter build apk --debug
 ```
+
+## 개발 방식: Claude Code Agent Teams
+
+이 프로젝트는 [Claude Code](https://claude.com/claude-code)의 에이전트 팀 기능으로 개발되었습니다.
+
+### 팀 구성
+
+| 역할 | 담당 |
+|------|------|
+| **Lead** | Phase/Step 설계, 태스크 생성 및 배정, 품질 관리 |
+| **Dev** | 기능 구현, 커밋/푸시 |
+| **QA** | 정적 분석, 테스트, 빌드 검증, 통과/반려 판정 |
+
+### 개발 루프
+
+```
+Lead: Phase 설계 → 사용자 승인 → Step별 태스크 생성
+  ↓
+Dev: 태스크 구현 → 커밋+푸시 → 완료 보고
+  ↓
+QA: flutter analyze + test + 코드 검증 → 통과/반려
+  ↓
+Lead: Phase 완료 판정 → 다음 Phase 설계
+```
+
+### Phase 진행 이력
+
+| Phase | 내용 | Steps |
+|-------|------|-------|
+| 0 | 프로젝트 셋업 | 7 |
+| 1 | 목표 데이터 모델 | 6 |
+| 2 | 목표 입력 기능 | 6 |
+| 3 | 핵심 목표 선택 | 4 |
+| 4 | 실행 계획 (ActionPlan) | 12 |
+| 5 | 마무리 (에러 처리, UI, 빌드) | 6 |
+| **합계** | | **41 Steps** |
