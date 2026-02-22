@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import 'package:brain_tracy/features/action_plan/application/action_plan_notifier.dart';
-import 'package:brain_tracy/features/action_plan/domain/entities/action_step_entity.dart';
+import 'package:brain_tracy/features/action_plan/presentation/action_plan_screen.dart';
 import 'package:brain_tracy/features/dashboard/application/dashboard_notifier.dart';
 import 'package:brain_tracy/features/dashboard/presentation/widgets/progress_ring_painter.dart';
-import 'package:brain_tracy/features/goal_input/domain/entities/goal_entity.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -20,111 +19,300 @@ class DashboardScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
-        child: dashboardAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('오류가 발생했습니다: $error'),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => ref.invalidate(dashboardNotifierProvider),
-                  child: const Text('다시 시도'),
+        child: Column(
+          children: [
+            // Custom Header
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      if (context.canPop()) context.pop();
+                    },
+                    icon: Icon(
+                      Icons.arrow_back_ios_new,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  const Expanded(
+                    child: Text(
+                      'DASHBOARD',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
+                  // Placeholder for symmetry
+                  const SizedBox(width: 48),
+                ],
+              ),
+            ),
+
+            // Content
+            Expanded(
+              child: dashboardAsync.when(
+                loading: () =>
+                    const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: colorScheme.error,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          '오류가 발생했습니다',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '$error',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: () =>
+                              ref.invalidate(dashboardNotifierProvider),
+                          child: const Text('다시 시도'),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ],
+                data: (state) {
+                  final goal = state.selectedGoal;
+
+                  if (goal == null) {
+                    return _buildEmptyState(context, colorScheme);
+                  }
+
+                  return _buildDashboardContent(
+                    context,
+                    ref: ref,
+                    state: state,
+                    colorScheme: colorScheme,
+                  );
+                },
+              ),
             ),
-          ),
-          data: (state) => RefreshIndicator(
-            onRefresh: () async {
-              ref.invalidate(dashboardNotifierProvider);
-            },
-            child: ListView(
-              padding: const EdgeInsets.only(bottom: 100),
-              children: [
-                _buildProfileSection(context, colorScheme),
-                const SizedBox(height: 16),
-                _buildHeroGoalCard(context, state.selectedGoal, colorScheme),
-                const SizedBox(height: 16),
-                _buildMetricsRow(context, state, colorScheme),
-                const SizedBox(height: 24),
-                _buildTodoSection(context, ref, state, colorScheme),
-              ],
-            ),
-          ),
-        ),
-      ),
-      floatingActionButton: SizedBox(
-        width: 56,
-        height: 56,
-        child: FloatingActionButton(
-          onPressed: () {
-            Navigator.of(context).pushNamed('/goal-input');
-          },
-          backgroundColor: colorScheme.primary,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: const Icon(Icons.edit, size: 24),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildProfileSection(BuildContext context, ColorScheme colorScheme) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-      child: Row(
-        children: [
-          // Avatar
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: colorScheme.primaryContainer,
-            ),
-            child: Center(
-              child: Text(
-                'BT',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onPrimaryContainer,
-                ),
+  Widget _buildEmptyState(BuildContext context, ColorScheme colorScheme) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.flag_outlined,
+                size: 40,
+                color: colorScheme.primary,
               ),
             ),
+            const SizedBox(height: 24),
+            Text(
+              '목표를 설정해보세요',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '목표를 설정하면 진행 상황과\n실행 계획을 확인할 수 있습니다.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: colorScheme.onSurfaceVariant,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDashboardContent(
+    BuildContext context, {
+    required WidgetRef ref,
+    required DashboardState state,
+    required ColorScheme colorScheme,
+  }) {
+    final goal = state.selectedGoal!;
+    final completedCount =
+        state.actionSteps.where((s) => s.isCompleted).length;
+    final totalCount = state.actionSteps.length;
+    final progress =
+        totalCount > 0 ? completedCount / totalCount : 0.0;
+
+    return RefreshIndicator(
+      onRefresh: () =>
+          ref.read(dashboardNotifierProvider.notifier).refresh(),
+      child: ListView(
+        padding: const EdgeInsets.only(bottom: 32),
+        children: [
+          const SizedBox(height: 8),
+
+          // Streak Card
+          _buildStreakCard(
+            context,
+            streakDays: state.streakDays,
+            colorScheme: colorScheme,
           ),
-          const SizedBox(width: 12),
-          // Welcome text
+
+          const SizedBox(height: 20),
+
+          // Selected Goal Card
+          _buildGoalCard(
+            context,
+            goalTitle: goal.title,
+            completedCount: completedCount,
+            totalCount: totalCount,
+            progress: progress,
+            progressPercent: state.progressPercent,
+            colorScheme: colorScheme,
+          ),
+
+          const SizedBox(height: 20),
+
+          // Action Steps Overview
+          _buildActionStepsOverview(
+            context,
+            completedCount: completedCount,
+            totalCount: totalCount,
+            steps: state.actionSteps
+                .map((s) => (title: s.title, isCompleted: s.isCompleted))
+                .toList(),
+            colorScheme: colorScheme,
+          ),
+
+          const SizedBox(height: 24),
+
+          // Quick Action Button
+          _buildQuickActionButton(
+            context,
+            goalId: goal.id,
+            colorScheme: colorScheme,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStreakCard(
+    BuildContext context, {
+    required int streakDays,
+    required ColorScheme colorScheme,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colorScheme.primary,
+            colorScheme.primaryContainer,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+            color: colorScheme.primary.withValues(alpha: 0.3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Flame icon container
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.local_fire_department,
+              size: 36,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Welcome back,',
+                  'CONSISTENCY STREAK',
                   style: TextStyle(
-                    fontSize: 13,
-                    color: colorScheme.onSurfaceVariant,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withValues(alpha: 0.8),
+                    letterSpacing: 2.0,
                   ),
                 ),
-                const Text(
-                  'Brain Tracy',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                const SizedBox(height: 4),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      '$streakDays',
+                      style: const TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        height: 1.1,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Days',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ),
-          ),
-          // Notification button
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.notifications_outlined,
-              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -132,13 +320,18 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeroGoalCard(
-    BuildContext context,
-    GoalEntity? selectedGoal,
-    ColorScheme colorScheme,
-  ) {
+  Widget _buildGoalCard(
+    BuildContext context, {
+    required String goalTitle,
+    required int completedCount,
+    required int totalCount,
+    required double progress,
+    required double progressPercent,
+    required ColorScheme colorScheme,
+  }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(20),
@@ -146,385 +339,283 @@ class DashboardScreen extends ConsumerWidget {
           BoxShadow(
             blurRadius: 8,
             offset: const Offset(0, 2),
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.06),
           ),
         ],
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Decorative blob
-          Positioned(
-            top: -40,
-            right: -40,
-            child: Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                color: colorScheme.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
+          // Section label
+          Text(
+            'SELECTED GOAL',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.primary,
+              letterSpacing: 2.0,
             ),
           ),
-          // Content
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top Priority badge
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text(
-                        'Top Priority',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                // Goal title
-                Text(
-                  selectedGoal?.title ?? '목표를 설정해주세요',
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                // Quote
-                Text(
-                  '"Success is a learnable skill."',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontStyle: FontStyle.italic,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // View Details
-                if (selectedGoal != null)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(
-                          '/action-plan/${selectedGoal.id}',
-                        );
-                      },
-                      icon: const Text(
-                        'View Details',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      label: const Icon(Icons.arrow_forward, size: 18),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+          const SizedBox(height: 12),
 
-  Widget _buildMetricsRow(
-    BuildContext context,
-    DashboardState state,
-    ColorScheme colorScheme,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          // Progress Ring Card
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                    color: Colors.black.withValues(alpha: 0.05),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: 80,
-                    height: 80,
-                    child: CustomPaint(
-                      painter: ProgressRingPainter(
-                        progress: state.progressPercent,
-                        backgroundColor: colorScheme.surfaceContainerHighest,
-                        progressColor: colorScheme.primary,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${state.progressPercent.round()}%',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Action Plan',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+          // Goal title
+          Text(
+            goalTitle,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+              height: 1.2,
             ),
           ),
-          const SizedBox(width: 16),
-          // Streak Card
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                    color: Colors.black.withValues(alpha: 0.05),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: Colors.orange.shade50,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.local_fire_department,
-                      size: 36,
-                      color: Colors.orange.shade600,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '${state.streakDays} ',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                        TextSpan(
-                          text: 'Days',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Consistency Streak',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurfaceVariant,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+          const SizedBox(height: 20),
 
-  Widget _buildTodoSection(
-    BuildContext context,
-    WidgetRef ref,
-    DashboardState state,
-    ColorScheme colorScheme,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Section header
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
+          // Progress info row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                width: 4,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: colorScheme.primary,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Text(
-                '오늘 할 일',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(width: 8),
               Text(
-                '(To-do Today)',
+                '$completedCount OF $totalCount STEPS',
                 style: TextStyle(
-                  fontSize: 14,
-                  color: colorScheme.onSurfaceVariant,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.primary,
+                  letterSpacing: 1.0,
                 ),
               ),
-              const Spacer(),
-              TextButton(
-                onPressed: () {
-                  if (state.selectedGoal != null) {
-                    Navigator.of(context).pushNamed(
-                      '/action-plan/${state.selectedGoal!.id}',
-                    );
-                  }
-                },
-                child: Text(
-                  'View All',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.primary,
-                  ),
+              Text(
+                '${progressPercent.round()}% Complete',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
           ),
-        ),
-        const SizedBox(height: 12),
-        // Action steps list
-        if (state.actionSteps.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
-            child: Center(
-              child: Text(
-                '실행 계획이 없습니다',
-                style: TextStyle(color: colorScheme.onSurfaceVariant),
+          const SizedBox(height: 8),
+
+          // Progress bar (same gradient style as ActionPlanScreen)
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: SizedBox(
+              height: 10,
+              child: Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  FractionallySizedBox(
+                    widthFactor: progress,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            colorScheme.primary,
+                            colorScheme.primaryContainer,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          )
-        else
-          ...state.actionSteps.map(
-            (step) => _buildTodoItem(context, ref, step, state, colorScheme),
           ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildTodoItem(
-    BuildContext context,
-    WidgetRef ref,
-    ActionStepEntity step,
-    DashboardState state,
-    ColorScheme colorScheme,
-  ) {
-    return GestureDetector(
-      onTap: () {
-        if (state.selectedGoal != null) {
-          ref
-              .read(
-                  actionPlanNotifierProvider(state.selectedGoal!.id).notifier)
-              .toggleComplete(step.id);
-          ref.invalidate(dashboardNotifierProvider);
-        }
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 3,
-              offset: const Offset(0, 1),
-              color: Colors.black.withValues(alpha: 0.04),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Checkbox
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: step.isCompleted
-                    ? colorScheme.primary
-                    : Colors.transparent,
-                border: Border.all(
-                  color: step.isCompleted
-                      ? colorScheme.primary
-                      : colorScheme.outline.withValues(alpha: 0.5),
-                  width: 2,
+  Widget _buildActionStepsOverview(
+    BuildContext context, {
+    required int completedCount,
+    required int totalCount,
+    required List<({String title, bool isCompleted})> steps,
+    required ColorScheme colorScheme,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.06),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section header with progress ring
+          Row(
+            children: [
+              // Mini progress ring
+              SizedBox(
+                width: 48,
+                height: 48,
+                child: CustomPaint(
+                  painter: ProgressRingPainter(
+                    progress: totalCount > 0
+                        ? (completedCount / totalCount) * 100
+                        : 0,
+                    backgroundColor: colorScheme.surfaceContainerHighest,
+                    progressColor: colorScheme.primary,
+                    strokeWidth: 5,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '$completedCount',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              child: step.isCompleted
-                  ? const Icon(Icons.check, color: Colors.white, size: 16)
-                  : null,
-            ),
-            const SizedBox(width: 14),
-            // Text
-            Expanded(
-              child: Text(
-                step.title,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ACTION STEPS',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.primary,
+                        letterSpacing: 2.0,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$completedCount / $totalCount 완료',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          if (steps.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            const Divider(height: 1),
+            const SizedBox(height: 12),
+
+            // Show up to 3 recent steps
+            ...steps.take(3).map((step) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 22,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: step.isCompleted
+                              ? colorScheme.primary
+                              : Colors.transparent,
+                          border: Border.all(
+                            color: step.isCompleted
+                                ? colorScheme.primary
+                                : colorScheme.outline
+                                    .withValues(alpha: 0.5),
+                            width: 2,
+                          ),
+                        ),
+                        child: step.isCompleted
+                            ? const Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 14,
+                              )
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          step.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: step.isCompleted
+                                ? FontWeight.normal
+                                : FontWeight.w500,
+                            decoration: step.isCompleted
+                                ? TextDecoration.lineThrough
+                                : null,
+                            color: step.isCompleted
+                                ? colorScheme.onSurface
+                                    .withValues(alpha: 0.5)
+                                : colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+
+            if (steps.length > 3) ...[
+              const SizedBox(height: 8),
+              Text(
+                '+ ${steps.length - 3}개 더',
                 style: TextStyle(
-                  fontSize: 15,
-                  fontWeight:
-                      step.isCompleted ? FontWeight.normal : FontWeight.w500,
-                  decoration:
-                      step.isCompleted ? TextDecoration.lineThrough : null,
-                  color: step.isCompleted
-                      ? colorScheme.onSurface.withValues(alpha: 0.5)
-                      : colorScheme.onSurface,
+                  fontSize: 13,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
-            ),
+            ],
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActionButton(
+    BuildContext context, {
+    required String goalId,
+    required ColorScheme colorScheme,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: ElevatedButton.icon(
+          onPressed: () =>
+              context.go(ActionPlanScreen.buildPath(goalId)),
+          icon: const Icon(Icons.checklist_rounded),
+          label: const Text(
+            '실행 계획 보기',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: 2,
+            shadowColor: colorScheme.primary.withValues(alpha: 0.3),
+          ),
         ),
       ),
     );
