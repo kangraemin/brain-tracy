@@ -63,9 +63,10 @@ class GoalSelectionNotifier extends AsyncNotifier<GoalSelectionState> {
     }
 
     // 새 선택 저장
-    final selectedGoal = currentState.goals.firstWhere(
-      (g) => g.id == currentState.selectedGoalId,
-    );
+    final selectedGoal = currentState.goals
+        .where((g) => g.id == currentState.selectedGoalId)
+        .firstOrNull;
+    if (selectedGoal == null) return;
     await _repository.update(selectedGoal.copyWith(isSelected: true));
   }
 }

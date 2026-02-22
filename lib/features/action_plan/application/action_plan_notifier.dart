@@ -50,7 +50,8 @@ class ActionPlanNotifier
     final currentSteps = state.valueOrNull;
     if (currentSteps == null) return;
 
-    final step = currentSteps.firstWhere((s) => s.id == id);
+    final step = currentSteps.where((s) => s.id == id).firstOrNull;
+    if (step == null) return;
     await _repository.update(step.copyWith(isCompleted: !step.isCompleted));
     state = AsyncData(await _fetchSorted());
   }
