@@ -5,13 +5,35 @@ import 'package:go_router/go_router.dart';
 import 'package:brain_tracy/features/action_plan/presentation/action_plan_screen.dart';
 import 'package:brain_tracy/features/goal_selection/application/goal_selection_notifier.dart';
 
-class GoalSelectionScreen extends ConsumerWidget {
+class GoalSelectionScreen extends ConsumerStatefulWidget {
   const GoalSelectionScreen({super.key});
 
   static const routePath = '/goal-selection';
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GoalSelectionScreen> createState() =>
+      _GoalSelectionScreenState();
+}
+
+class _GoalSelectionScreenState extends ConsumerState<GoalSelectionScreen> {
+  bool _isLoading = false;
+
+  Future<void> _onConfirm(String selectedGoalId) async {
+    setState(() => _isLoading = true);
+    try {
+      await ref
+          .read(goalSelectionNotifierProvider.notifier)
+          .confirmSelection();
+      if (mounted) {
+        context.go(ActionPlanScreen.buildPath(selectedGoalId));
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final selectionAsync = ref.watch(goalSelectionNotifierProvider);
     final theme = Theme.of(context);
 
@@ -83,11 +105,14 @@ class GoalSelectionScreen extends ConsumerWidget {
                                   )
                                 : null,
                           ),
-                          onTap: () {
-                            ref
-                                .read(goalSelectionNotifierProvider.notifier)
-                                .selectGoal(goal.id);
-                          },
+                          onTap: _isLoading
+                              ? null
+                              : () {
+                                  ref
+                                      .read(goalSelectionNotifierProvider
+                                          .notifier)
+                                      .selectGoal(goal.id);
+                                },
                         ),
                       ),
                     );
@@ -99,19 +124,18 @@ class GoalSelectionScreen extends ConsumerWidget {
                 child: SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: hasSelection
-                        ? () async {
-                            await ref
-                                .read(goalSelectionNotifierProvider.notifier)
-                                .confirmSelection();
-                            if (context.mounted) {
-                              context.go(ActionPlanScreen.buildPath(
-                                selectionState.selectedGoalId!,
-                              ));
-                            }
-                          }
+                    onPressed: hasSelection && !_isLoading
+                        ? () => _onConfirm(selectionState.selectedGoalId!)
                         : null,
-                    child: const Text('선택 완료'),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text('선택 완료'),
                   ),
                 ),
               ),
