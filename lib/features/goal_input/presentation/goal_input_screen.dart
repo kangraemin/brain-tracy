@@ -78,8 +78,26 @@ class _GoalInputScreenState extends ConsumerState<GoalInputScreen> {
                   itemCount: goals.length,
                   itemBuilder: (context, index) {
                     final goal = goals[index];
-                    return ListTile(
-                      title: Text(goal.title),
+                    return Dismissible(
+                      key: ValueKey(goal.id),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.only(right: 16),
+                        color: Theme.of(context).colorScheme.error,
+                        child: Icon(
+                          Icons.delete,
+                          color: Theme.of(context).colorScheme.onError,
+                        ),
+                      ),
+                      onDismissed: (_) {
+                        ref
+                            .read(goalListNotifierProvider.notifier)
+                            .deleteGoal(goal.id);
+                      },
+                      child: ListTile(
+                        title: Text(goal.title),
+                      ),
                     );
                   },
                 );
