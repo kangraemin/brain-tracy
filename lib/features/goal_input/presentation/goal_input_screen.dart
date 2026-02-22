@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:brain_tracy/features/goal_input/application/goal_list_notifier.dart';
 import 'package:brain_tracy/features/goal_input/domain/entities/goal_entity.dart';
+import 'package:brain_tracy/features/goal_selection/presentation/goal_selection_screen.dart';
 
 class GoalInputScreen extends ConsumerStatefulWidget {
   const GoalInputScreen({super.key});
@@ -141,6 +143,18 @@ class _GoalInputScreenState extends ConsumerState<GoalInputScreen> {
                   },
                 );
               },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: goalCount > 0
+                    ? () => context.push(GoalSelectionScreen.routePath)
+                    : null,
+                child: const Text('다음'),
+              ),
             ),
           ),
         ],
