@@ -69,7 +69,7 @@ Goal Entity, Repository 인터페이스, Hive 저장소 구현. goal_input featu
 ---
 
 ## Phase 2: 목표 입력 기능
-상태: 🔄 진행중
+상태: 완료 ✅
 
 목표 10개를 입력하는 화면과 비즈니스 로직. goal_input feature 완성.
 
@@ -100,14 +100,25 @@ Goal Entity, Repository 인터페이스, Hive 저장소 구현. goal_input featu
 ---
 
 ## Phase 3: 핵심 목표 선택
-상태: ⏳ 대기
+상태: 🔄 진행중
 
 마법의 지팡이 질문으로 핵심 목표 1개를 선택하는 화면. goal_selection feature 완성.
 
-예상 Step:
-- GoalSelectionNotifier 구현
-- GoalSelectionScreen UI 구현
-- 선택 결과 저장
+### Step 3.1: GoalSelectionNotifier 구현
+- 구현: lib/features/goal_selection/application/goal_selection_notifier.dart 생성. 목표 목록 로드 (goalRepositoryProvider 활용), selectGoal(String id) 메서드로 선택 상태 관리. goalSelectionNotifierProvider 정의.
+- 완료 기준: `flutter analyze` 성공
+
+### Step 3.2: GoalSelectionScreen 화면 구현
+- 구현: lib/features/goal_selection/presentation/goal_selection_screen.dart 생성. 마법의 지팡이 질문 텍스트 표시 ("24시간 안에 단 하나의 목표만 이룰 수 있다면?"). 목표 리스트를 선택 가능한 카드로 표시. 선택된 목표 하이라이트.
+- 완료 기준: 화면에 목표 리스트 표시, 탭 시 선택 하이라이트, `flutter analyze` 성공
+
+### Step 3.3: 선택 결과 저장
+- 구현: GoalSelectionScreen에 "선택 완료" 버튼 추가. 선택된 목표의 isSelected를 true로 업데이트하여 Repository에 저장. 기존 선택이 있으면 해제 후 새로 선택.
+- 완료 기준: 선택 저장 후 앱 재시작 시 선택 유지, `flutter analyze` 성공
+
+### Step 3.4: 화면 간 네비게이션 연결
+- 구현: app_router.dart에 GoalSelectionScreen 라우트 등록. GoalInputScreen에 "다음" 버튼 추가 (목표 1개 이상일 때 활성화).
+- 완료 기준: GoalInputScreen → GoalSelectionScreen 네비게이션 동작, `flutter analyze` 성공
 
 ---
 
