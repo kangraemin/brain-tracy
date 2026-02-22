@@ -178,11 +178,30 @@ Goal Entity, Repository 인터페이스, Hive 저장소 구현. goal_input featu
 ---
 
 ## Phase 5: 마무리
-상태: ⏳ 대기
+상태: 🔄 진행중
 
 에러 처리 보강, UI 개선, 최종 빌드 검증.
 
-예상 Step:
-- 에러 상태 처리 보강
-- UI/UX 개선
-- 최종 빌드 검증 (iOS + Android)
+### Step 5.1: Notifier null 안전 처리
+- 구현: ActionPlanNotifier.toggleComplete, GoalSelectionNotifier.confirmSelection에서 firstWhere를 firstWhereOrNull로 변경. null 검사 후 early return 추가.
+- 완료 기준: `flutter analyze` 성공
+
+### Step 5.2: Repository 예외 처리 추가
+- 구현: GoalRepositoryImpl, ActionPlanRepositoryImpl의 CRUD 메서드에 try-catch 추가. Hive 예외 발생 시 의미 있는 에러 메시지로 rethrow.
+- 완료 기준: `flutter analyze` 성공
+
+### Step 5.3: 화면 에러 상태 재시도 기능 추가
+- 구현: GoalInputScreen, GoalSelectionScreen, ActionPlanScreen의 error 상태에 "다시 시도" 버튼 추가. ref.invalidate()로 상태 리프레시.
+- 완료 기준: 에러 상태에서 재시도 버튼 표시, `flutter analyze` 성공
+
+### Step 5.4: 목표 삭제 확인 다이얼로그 추가
+- 구현: GoalInputScreen의 Dismissible에 confirmDismiss 콜백으로 확인 다이얼로그 추가.
+- 완료 기준: 스와이프 시 확인 다이얼로그 표시, `flutter analyze` 성공
+
+### Step 5.5: 선택 완료 로딩 피드백 추가
+- 구현: GoalSelectionScreen의 confirmSelection() 실행 중 버튼 비활성화 및 로딩 인디케이터 표시.
+- 완료 기준: 선택 완료 시 로딩 피드백 표시, `flutter analyze` 성공
+
+### Step 5.6: 최종 빌드 검증
+- 구현: `flutter analyze`, `flutter test`, `flutter build apk --debug` 실행하여 전체 빌드 성공 확인.
+- 완료 기준: 모든 빌드 명령 성공

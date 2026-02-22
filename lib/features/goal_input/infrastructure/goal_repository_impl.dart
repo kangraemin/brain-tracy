@@ -11,23 +11,39 @@ class GoalRepositoryImpl implements GoalRepository {
 
   @override
   Future<List<GoalEntity>> getAll() async {
-    return _box.values.map((model) => model.toEntity()).toList();
+    try {
+      return _box.values.map((model) => model.toEntity()).toList();
+    } catch (e) {
+      throw Exception('목표 목록을 불러오는데 실패했습니다: $e');
+    }
   }
 
   @override
   Future<void> add(GoalEntity goal) async {
-    final model = GoalHiveModel.fromEntity(goal);
-    await _box.put(goal.id, model);
+    try {
+      final model = GoalHiveModel.fromEntity(goal);
+      await _box.put(goal.id, model);
+    } catch (e) {
+      throw Exception('목표를 추가하는데 실패했습니다: $e');
+    }
   }
 
   @override
   Future<void> update(GoalEntity goal) async {
-    final model = GoalHiveModel.fromEntity(goal);
-    await _box.put(goal.id, model);
+    try {
+      final model = GoalHiveModel.fromEntity(goal);
+      await _box.put(goal.id, model);
+    } catch (e) {
+      throw Exception('목표를 수정하는데 실패했습니다: $e');
+    }
   }
 
   @override
   Future<void> delete(String id) async {
-    await _box.delete(id);
+    try {
+      await _box.delete(id);
+    } catch (e) {
+      throw Exception('목표를 삭제하는데 실패했습니다: $e');
+    }
   }
 }

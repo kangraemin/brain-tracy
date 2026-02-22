@@ -11,24 +11,40 @@ class ActionPlanRepositoryImpl implements ActionPlanRepository {
 
   @override
   Future<List<ActionStepEntity>> getByGoalId(String goalId) async {
-    return _box.values
-        .where((model) => model.goalId == goalId)
-        .map((model) => model.toEntity())
-        .toList();
+    try {
+      return _box.values
+          .where((model) => model.goalId == goalId)
+          .map((model) => model.toEntity())
+          .toList();
+    } catch (e) {
+      throw Exception('실행 계획을 불러오는데 실패했습니다: $e');
+    }
   }
 
   @override
   Future<void> add(ActionStepEntity step) async {
-    await _box.put(step.id, ActionStepHiveModel.fromEntity(step));
+    try {
+      await _box.put(step.id, ActionStepHiveModel.fromEntity(step));
+    } catch (e) {
+      throw Exception('실행 계획을 추가하는데 실패했습니다: $e');
+    }
   }
 
   @override
   Future<void> update(ActionStepEntity step) async {
-    await _box.put(step.id, ActionStepHiveModel.fromEntity(step));
+    try {
+      await _box.put(step.id, ActionStepHiveModel.fromEntity(step));
+    } catch (e) {
+      throw Exception('실행 계획을 수정하는데 실패했습니다: $e');
+    }
   }
 
   @override
   Future<void> delete(String id) async {
-    await _box.delete(id);
+    try {
+      await _box.delete(id);
+    } catch (e) {
+      throw Exception('실행 계획을 삭제하는데 실패했습니다: $e');
+    }
   }
 }
