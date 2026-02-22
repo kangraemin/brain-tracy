@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:brain_tracy/features/goal_input/application/goal_list_notifier.dart';
+import 'package:brain_tracy/features/goal_input/domain/entities/goal_entity.dart';
 
 class GoalInputScreen extends ConsumerStatefulWidget {
   const GoalInputScreen({super.key});
@@ -27,6 +28,41 @@ class _GoalInputScreenState extends ConsumerState<GoalInputScreen> {
 
     ref.read(goalListNotifierProvider.notifier).addGoal(title);
     _controller.clear();
+  }
+
+  Future<void> _editGoal(GoalEntity goal) async {
+    final editController = TextEditingController(text: goal.title);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('목표 수정'),
+        content: TextField(
+          controller: editController,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: '목표를 입력하세요',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, editController.text.trim()),
+            child: const Text('저장'),
+          ),
+        ],
+      ),
+    );
+    editController.dispose();
+
+    if (result != null && result.isNotEmpty && result != goal.title) {
+      ref
+          .read(goalListNotifierProvider.notifier)
+          .updateGoal(goal.copyWith(title: result));
+    }
   }
 
   @override
@@ -97,6 +133,7 @@ class _GoalInputScreenState extends ConsumerState<GoalInputScreen> {
                       },
                       child: ListTile(
                         title: Text(goal.title),
+                        onTap: () => _editGoal(goal),
                       ),
                     );
                   },
