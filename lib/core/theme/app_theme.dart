@@ -5,8 +5,10 @@ class AppTheme {
 
   static ThemeData get light {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: Colors.indigo,
+      seedColor: const Color(0xFF6750A4),
       brightness: Brightness.light,
+      primaryContainer: const Color(0xFFEADDFF),
+      surface: const Color(0xFFFEF7FF),
     );
 
     return ThemeData(
