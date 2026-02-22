@@ -5,7 +5,7 @@ Brain Tracy MVP: 목표 입력 → 핵심 목표 선택 → 7단계 실행 체�
 ---
 
 ## Phase 0: 프로젝트 셋업
-상태: ⏳ 대기
+상태: 완료 ✅
 
 ### Step 0.1: Flutter 프로젝트 생성
 - 구현: `flutter create --org com.braintracy --project-name brain_tracy .` 실행
@@ -38,15 +38,33 @@ Brain Tracy MVP: 목표 입력 → 핵심 목표 선택 → 7단계 실행 체�
 ---
 
 ## Phase 1: 목표 데이터 모델
-상태: ⏳ 대기
+상태: 🔄 진행중
 
-Goal Entity, Repository 인터페이스, Hive 저장소 구현. 데이터 레이어 완성.
+Goal Entity, Repository 인터페이스, Hive 저장소 구현. goal_input feature 데이터 레이어 완성.
 
-예상 Step:
-- GoalEntity freezed 모델 정의
-- GoalRepository 인터페이스(abstract class) 정의
-- Hive TypeAdapter 구현
-- GoalRepositoryImpl 구현
+### Step 1.1: GoalEntity freezed 모델 정의
+- 구현: lib/features/goal_input/domain/entities/goal_entity.dart 생성. @freezed 어노테이션으로 immutable 모델 정의 (id, title, createdAt, isSelected). build_runner 실행하여 .freezed.dart 생성.
+- 완료 기준: `dart run build_runner build` 성공, `flutter analyze` 성공
+
+### Step 1.2: GoalRepository 인터페이스 정의
+- 구현: lib/features/goal_input/domain/repositories/goal_repository.dart 생성. abstract class로 CRUD 메서드 정의 (getAll, add, update, delete).
+- 완료 기준: `flutter analyze` 성공
+
+### Step 1.3: GoalHiveModel 정의
+- 구현: lib/features/goal_input/infrastructure/goal_hive_model.dart 생성. @HiveType/@HiveField 어노테이션으로 Hive 저장용 모델 정의. GoalEntity ↔ GoalHiveModel 변환 메서드 포함. build_runner 실행하여 .g.dart 생성.
+- 완료 기준: `dart run build_runner build` 성공, `flutter analyze` 성공
+
+### Step 1.4: Hive TypeAdapter 등록
+- 구현: main.dart에서 GoalHiveModelAdapter 등록, goal Box open 호출 추가.
+- 완료 기준: 앱 시작 시 Hive Box 정상 오픈, `flutter analyze` 성공
+
+### Step 1.5: GoalRepositoryImpl 구현
+- 구현: lib/features/goal_input/infrastructure/goal_repository_impl.dart 생성. GoalRepository 인터페이스를 구현하여 Hive Box로 CRUD 수행.
+- 완료 기준: `flutter analyze` 성공
+
+### Step 1.6: GoalRepository Provider 정의
+- 구현: lib/features/goal_input/application/ 에 goal_providers.dart 생성. Riverpod Provider로 GoalRepositoryImpl을 GoalRepository 인터페이스에 바인딩.
+- 완료 기준: `flutter analyze` 성공, `flutter test` 성공
 
 ---
 
