@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:brain_tracy/features/action_plan/application/action_plan_notifier.dart';
 import 'package:brain_tracy/features/action_plan/domain/entities/action_step_entity.dart';
+import 'package:brain_tracy/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:brain_tracy/features/goal_input/application/goal_providers.dart';
 import 'package:brain_tracy/features/goal_input/domain/entities/goal_entity.dart';
 import 'package:brain_tracy/features/goal_input/domain/repositories/goal_repository.dart';
@@ -185,6 +187,24 @@ class _ActionPlanScreenState extends ConsumerState<ActionPlanScreen> {
                     ],
                   );
                 },
+              ),
+            ),
+
+            // Dashboard button
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: FilledButton(
+                  onPressed: () => context.go(DashboardScreen.routePath),
+                  style: FilledButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                  ),
+                  child: const Text('대시보드 보기'),
+                ),
               ),
             ),
           ],

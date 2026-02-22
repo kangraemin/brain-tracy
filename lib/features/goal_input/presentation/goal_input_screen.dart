@@ -226,7 +226,7 @@ class _GoalInputScreenState extends ConsumerState<GoalInputScreen> {
                 color: colorScheme.surface,
                 border: Border(
                   top: BorderSide(
-                    color: colorScheme.outlineVariant.withOpacity(0.2),
+                    color: colorScheme.outlineVariant.withValues(alpha:0.2),
                   ),
                 ),
               ),
@@ -320,11 +320,11 @@ class _GoalInputScreenState extends ConsumerState<GoalInputScreen> {
               color: colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: colorScheme.outlineVariant.withOpacity(0.4),
+                color: colorScheme.outlineVariant.withValues(alpha:0.4),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha:0.04),
                   blurRadius: 4,
                   offset: const Offset(0, 1),
                 ),
@@ -370,7 +370,7 @@ class _GoalInputScreenState extends ConsumerState<GoalInputScreen> {
                   icon: Icon(
                     Icons.close,
                     color:
-                        colorScheme.onSurfaceVariant.withOpacity(0.4),
+                        colorScheme.onSurfaceVariant.withValues(alpha:0.4),
                     size: 20,
                   ),
                 ),
@@ -385,7 +385,7 @@ class _GoalInputScreenState extends ConsumerState<GoalInputScreen> {
   Widget _buildEmptyState(ColorScheme colorScheme) {
     return CustomPaint(
       painter: _DashedBorderPainter(
-        color: colorScheme.primary.withOpacity(0.2),
+        color: colorScheme.primary.withValues(alpha:0.2),
         borderRadius: 16,
       ),
       child: Container(
@@ -396,13 +396,13 @@ class _GoalInputScreenState extends ConsumerState<GoalInputScreen> {
             Icon(
               Icons.flag_outlined,
               size: 40,
-              color: colorScheme.primary.withOpacity(0.3),
+              color: colorScheme.primary.withValues(alpha:0.3),
             ),
             const SizedBox(height: 8),
             Text(
               '목표를 추가해주세요',
               style: TextStyle(
-                color: colorScheme.onSurfaceVariant.withOpacity(0.6),
+                color: colorScheme.onSurfaceVariant.withValues(alpha:0.6),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -417,7 +417,7 @@ class _GoalInputScreenState extends ConsumerState<GoalInputScreen> {
     final remaining = maxGoalCount - goalCount;
     return CustomPaint(
       painter: _DashedBorderPainter(
-        color: colorScheme.primary.withOpacity(0.1),
+        color: colorScheme.primary.withValues(alpha:0.1),
         borderRadius: 16,
       ),
       child: Container(
@@ -428,13 +428,13 @@ class _GoalInputScreenState extends ConsumerState<GoalInputScreen> {
             Icon(
               Icons.edit_note,
               size: 20,
-              color: colorScheme.primary.withOpacity(0.4),
+              color: colorScheme.primary.withValues(alpha:0.4),
             ),
             const SizedBox(width: 8),
             Text(
               '$remaining개의 목표가 남았습니다',
               style: TextStyle(
-                color: colorScheme.primary.withOpacity(0.4),
+                color: colorScheme.primary.withValues(alpha:0.4),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
