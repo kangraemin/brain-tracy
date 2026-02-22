@@ -197,7 +197,7 @@ class _ActionPlanScreenState extends ConsumerState<ActionPlanScreen> {
                 width: double.infinity,
                 height: 56,
                 child: FilledButton(
-                  onPressed: () => context.go(DashboardScreen.routePath),
+                  onPressed: () => context.push(DashboardScreen.routePath),
                   style: FilledButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),

@@ -598,7 +598,7 @@ class DashboardScreen extends ConsumerWidget {
         height: 56,
         child: ElevatedButton.icon(
           onPressed: () =>
-              context.go(ActionPlanScreen.buildPath(goalId)),
+              context.push(ActionPlanScreen.buildPath(goalId)),
           icon: const Icon(Icons.checklist_rounded),
           label: const Text(
             '실행 계획 보기',

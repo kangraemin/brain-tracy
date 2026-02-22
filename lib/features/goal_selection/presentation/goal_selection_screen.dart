@@ -72,7 +72,7 @@ class _GoalSelectionScreenState extends ConsumerState<GoalSelectionScreen>
           .read(goalSelectionNotifierProvider.notifier)
           .confirmSelection();
       if (mounted) {
-        context.go(ActionPlanScreen.buildPath(selectedGoalId));
+        context.push(ActionPlanScreen.buildPath(selectedGoalId));
       }
     } catch (_) {
       if (mounted) setState(() => _isLoading = false);
