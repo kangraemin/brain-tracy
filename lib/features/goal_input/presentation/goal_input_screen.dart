@@ -141,6 +141,28 @@ class _GoalInputScreenState extends ConsumerState<GoalInputScreen> {
                           color: Theme.of(context).colorScheme.onError,
                         ),
                       ),
+                      confirmDismiss: (direction) async {
+                        return await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('목표 삭제'),
+                            content: Text(
+                                '"${goal.title}"을(를) 삭제하시겠습니까?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(context, false),
+                                child: const Text('취소'),
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(context, true),
+                                child: const Text('삭제'),
+                              ),
+                            ],
+                          ),
+                        ) ?? false;
+                      },
                       onDismissed: (_) {
                         ref
                             .read(goalListNotifierProvider.notifier)
