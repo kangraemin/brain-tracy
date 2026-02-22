@@ -40,6 +40,8 @@ class _ActionPlanScreenState extends ConsumerState<ActionPlanScreen> {
   Widget build(BuildContext context) {
     final stepsAsync = ref.watch(actionPlanNotifierProvider(widget.goalId));
     final repository = ref.watch(goalRepositoryProvider);
+    final stepCount = stepsAsync.valueOrNull?.length ?? 0;
+    final canAdd = stepCount < maxStepCount;
 
     return Scaffold(
       appBar: AppBar(
@@ -47,10 +49,14 @@ class _ActionPlanScreenState extends ConsumerState<ActionPlanScreen> {
           future: repository.getAll(),
           builder: (context, snapshot) {
             final goals = snapshot.data;
-            if (goals == null) return const Text('실행 계획');
+            if (goals == null) {
+              return Text('실행 계획 ($stepCount/$maxStepCount)');
+            }
             final goal =
                 goals.where((g) => g.id == widget.goalId).firstOrNull;
-            return Text(goal?.title ?? '실행 계획');
+            return Text(
+              '${goal?.title ?? '실행 계획'} ($stepCount/$maxStepCount)',
+            );
           },
         ),
       ),
@@ -72,7 +78,7 @@ class _ActionPlanScreenState extends ConsumerState<ActionPlanScreen> {
                 ),
                 const SizedBox(width: 8),
                 IconButton.filled(
-                  onPressed: _addStep,
+                  onPressed: canAdd ? _addStep : null,
                   icon: const Icon(Icons.add),
                 ),
               ],

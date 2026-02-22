@@ -8,6 +8,7 @@ import 'package:brain_tracy/features/action_plan/domain/entities/action_step_ent
 import 'package:brain_tracy/features/action_plan/domain/repositories/action_plan_repository.dart';
 
 const _uuid = Uuid();
+const maxStepCount = 7;
 
 class ActionPlanNotifier
     extends FamilyAsyncNotifier<List<ActionStepEntity>, String> {
@@ -15,6 +16,14 @@ class ActionPlanNotifier
       ref.read(actionPlanRepositoryProvider);
 
   String get _goalId => arg;
+
+  bool get canAddStep {
+    final currentState = state;
+    if (currentState is AsyncData<List<ActionStepEntity>>) {
+      return currentState.value.length < maxStepCount;
+    }
+    return false;
+  }
 
   @override
   FutureOr<List<ActionStepEntity>> build(String arg) async {
@@ -24,6 +33,7 @@ class ActionPlanNotifier
   }
 
   Future<void> addStep(String title) async {
+    if (!canAddStep) return;
     final currentSteps = state.valueOrNull ?? [];
     final step = ActionStepEntity(
       id: _uuid.v4(),
