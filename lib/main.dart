@@ -11,19 +11,50 @@ import 'package:brain_tracy/features/onboarding/infrastructure/settings_hive_mod
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-  Hive.registerAdapter(GoalHiveModelAdapter());
-  Hive.registerAdapter(ActionStepHiveModelAdapter());
-  Hive.registerAdapter(SettingsHiveModelAdapter());
-  Hive.registerAdapter(UserActivityHiveModelAdapter());
-  await Hive.openBox<GoalHiveModel>(HiveConstants.goalBox);
-  await Hive.openBox<ActionStepHiveModel>(HiveConstants.actionPlanBox);
-  await Hive.openBox<SettingsHiveModel>(HiveConstants.settingsBox);
-  await Hive.openBox<UserActivityHiveModel>(HiveConstants.userActivityBox);
+  await _initHive();
 
   runApp(
     const ProviderScope(
       child: BrainTracyApp(),
     ),
   );
+}
+
+Future<void> _initHive() async {
+  await Hive.initFlutter();
+  _registerAdapters();
+
+  try {
+    await _openBoxes();
+  } catch (_) {
+    // Hive 박스 손상 시 삭제 후 재생성
+    await Hive.deleteFromDisk();
+    await Hive.initFlutter();
+    _registerAdapters();
+    await _openBoxes();
+  }
+}
+
+void _registerAdapters() {
+  if (!Hive.isAdapterRegistered(0)) {
+    Hive.registerAdapter(GoalHiveModelAdapter());
+  }
+  if (!Hive.isAdapterRegistered(1)) {
+    Hive.registerAdapter(ActionStepHiveModelAdapter());
+  }
+  if (!Hive.isAdapterRegistered(2)) {
+    Hive.registerAdapter(SettingsHiveModelAdapter());
+  }
+  if (!Hive.isAdapterRegistered(3)) {
+    Hive.registerAdapter(UserActivityHiveModelAdapter());
+  }
+}
+
+Future<void> _openBoxes() async {
+  await Future.wait([
+    Hive.openBox<GoalHiveModel>(HiveConstants.goalBox),
+    Hive.openBox<ActionStepHiveModel>(HiveConstants.actionPlanBox),
+    Hive.openBox<SettingsHiveModel>(HiveConstants.settingsBox),
+    Hive.openBox<UserActivityHiveModel>(HiveConstants.userActivityBox),
+  ]);
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:brain_tracy/features/goal_input/presentation/goal_input_screen.dart';
 import 'package:brain_tracy/features/onboarding/application/onboarding_providers.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -73,7 +74,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   Future<void> _completeOnboarding() async {
     final completeOnboarding = ref.read(completeOnboardingProvider);
     await completeOnboarding();
-    if (mounted) context.go('/');
+    if (mounted) context.go(GoalInputScreen.routePath);
   }
 
   @override

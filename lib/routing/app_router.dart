@@ -9,11 +9,10 @@ import 'package:brain_tracy/features/onboarding/application/onboarding_providers
 import 'package:brain_tracy/features/onboarding/presentation/onboarding_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final hasCompletedOnboarding = ref.watch(hasCompletedOnboardingProvider);
-
   return GoRouter(
     initialLocation: GoalInputScreen.routePath,
     redirect: (context, state) {
+      final hasCompletedOnboarding = ref.read(hasCompletedOnboardingProvider);
       final isOnboarding = state.matchedLocation == OnboardingScreen.routePath;
 
       if (!hasCompletedOnboarding && !isOnboarding) {
