@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:brain_tracy/features/action_plan/presentation/action_plan_screen.dart';
 import 'package:brain_tracy/features/goal_selection/application/goal_selection_notifier.dart';
 
 class GoalSelectionScreen extends ConsumerWidget {
@@ -91,6 +93,11 @@ class GoalSelectionScreen extends ConsumerWidget {
                             await ref
                                 .read(goalSelectionNotifierProvider.notifier)
                                 .confirmSelection();
+                            if (context.mounted) {
+                              context.go(ActionPlanScreen.buildPath(
+                                selectionState.selectedGoalId!,
+                              ));
+                            }
                           }
                         : null,
                     child: const Text('선택 완료'),
